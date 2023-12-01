@@ -1,0 +1,21 @@
+#include<neotimer.h>
+
+
+Neotimer pisca;
+
+
+void setup()
+{
+Serial.begin(115200);
+pisca.set(1000);
+pinMode(10, OUTPUT);
+}
+
+void loop() 
+{
+if(pisca.repeat())
+{
+digitalWrite(10, !digitalRead(10));
+Serial.println(digitalRead(10));
+}
+}
