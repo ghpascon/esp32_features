@@ -1,0 +1,39 @@
+//PWM  analogWrite( , ) - resolução entre 0-255
+
+#include<neotimer.h>
+
+
+Neotimer tempo;
+
+
+int ledPin = 9;    
+int val = 0;      
+
+
+void setup() 
+  {
+    pinMode(ledPin, OUTPUT);  
+
+
+    tempo.set(10);
+  }
+
+void loop() 
+  {
+    while(val<256)
+    {
+      if(blink1.repeat())
+        {
+          analogWrite(ledPin, val); 
+          val++;
+        }
+    }
+     while(val>0)
+    {
+      if(blink1.repeat())
+        {
+          analogWrite(ledPin, val); 
+          val--;
+        }
+    }
+  }
