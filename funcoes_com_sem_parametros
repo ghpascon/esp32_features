@@ -1,0 +1,37 @@
+#include<neotimer.h>
+
+
+Neotimer tempo;
+
+
+int c=0;
+
+
+void nome()
+  {
+    Serial.println("Gabriel");
+  }
+
+void soma(int a, int b)
+  {
+    c=a+b;
+    Serial.println(c);
+  }
+
+
+void setup() 
+  {
+    Serial.begin(115200);
+
+
+    tempo.set(1000);
+  }
+
+void loop() 
+  {
+    if(tempo.repeat())
+      {
+         nome();
+         soma(c, 1);
+      }
+  }
