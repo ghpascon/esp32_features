@@ -1,0 +1,42 @@
+int x=0;
+
+
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) {
+    ;  // wait for serial port to connect. Needed for native USB port only
+  }
+}
+
+
+void loop() {
+
+//primeira string
+
+  Serial.println("stringOne: ");
+  while (!Serial.available()); // Wait for input
+  String stringOne = Serial.readStringUntil('\n');
+
+//segunda string
+
+  Serial.println("stringTwo: ");
+  while (!Serial.available()); // Wait for input
+  String stringTwo = Serial.readStringUntil('\n');
+
+//mostra strings
+
+  Serial.println("stringOne: " + stringOne);
+  Serial.println("stringTwo: " + stringTwo);
+  x=0;
+
+//compara se tem a segunda string tem na primeira string
+
+while(x!=stringOne.length())
+{
+  if (stringOne.substring(x, x+stringTwo.length()) == stringTwo) 
+  {
+  Serial.println(stringTwo + " in " + stringOne);
+  }
+  x=x+1;
+}
+}
