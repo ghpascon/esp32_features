@@ -1,0 +1,87 @@
+//seguir o modelo: a_x_b_x_c_x_d_x_e_x_f_x_g_x_h_x_ 
+
+//variaveis
+  int x=0;
+  int p=0;
+  int cadpar[16]= {};
+  int param[8] = {};    
+  int na=0;
+  int val=0;
+
+
+void setup() 
+  {
+    Serial.begin(115200);
+    while (!Serial) 
+     {
+        ;  // wait for serial port to connect. Needed for native USB port only
+     }
+  }
+
+
+void loop() 
+{
+//zera variaveis
+  x=0;
+  p=0;
+  na=0;
+
+//string com os comandos
+
+  Serial.println("stringOne: ");
+  while (!Serial.available()); // Wait for input
+  String stringOne = Serial.readStringUntil('\n');
+
+//referencia da string
+
+  String stringTwo = "_";
+
+//mostra comando de parametros
+
+  Serial.println("parametros: " + stringOne);
+
+//verifica a posição das referencias
+
+  while(x!=stringOne.length())
+  {
+    if (stringOne.substring(x, x+stringTwo.length()) == stringTwo) 
+      {
+       cadpar[p]=x;
+       p++;
+      }
+    x++;
+  }
+
+//mostra a posicao das referencias
+  while(na < (sizeof(cadpar))/(sizeof(cadpar[0])))
+  {
+    Serial.println(cadpar[na]);
+    na++;
+  }
+  Serial.println("");
+  na=0;
+  p=0;
+  x=0;
+
+
+//salva os parametros
+  while(x!=stringOne.length())
+  {
+    String num = stringOne.substring(cadpar[p]+1, cadpar[p+1]);
+    val=num.toInt();
+    param[na]=val;
+    na++;
+    p=p+2;
+    x++;
+  }
+  Serial.println("");
+  na=0;
+
+//mostra os parametros
+  while(na < (sizeof(param))/(sizeof(param[0])))
+    {
+      Serial.println(param[na]);
+      na++;
+    }
+  Serial.println("");
+}
