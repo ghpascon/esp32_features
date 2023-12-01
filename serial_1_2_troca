@@ -1,0 +1,15 @@
+void setup() {
+ Serial.begin(115200);
+ Serial2.begin(115200);
+}
+
+void loop() {
+  
+  while (!Serial.available() && !Serial2.available()); // Wait for input
+  String name = Serial.readStringUntil('\n');
+  String name2 = Serial2.readStringUntil('\n');
+  Serial.println(name);
+  Serial.println(name2);
+  Serial2.println(name);
+  Serial2.println(name2);
+}
