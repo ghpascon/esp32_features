@@ -1,0 +1,135 @@
+//enviar a direcao em pulsos
+//seguir o modelo: e_x_ ou d_x_
+
+//ao usar motor de passo nao utilizar serialprint entre os pulsos
+//ao usar motor de passo utilizar tempo entre os pulsos de pelo menos 1ms
+
+
+//bibliotecas
+#include <neotimer.h>
+
+//variaveis
+int valid = 0;
+int val = 0;
+int na = 0;
+int p = 0;
+int x = 0;
+int cadpar[2] = {};
+int pulsos = 0;
+
+
+int t1 = 1;  //tempo entre alternar o gpo
+int pulsopin = 13;
+int direcaopin = 14;
+int enpin = 22;
+
+String cancela = " ";
+
+//temporizadores
+Neotimer alterna;
+
+
+void setup() {
+  Serial.begin(115200);
+
+  alterna.set(t1);
+  pinMode(pulsopin, OUTPUT);
+  pinMode(direcaopin, OUTPUT);
+  pinMode(enpin, OUTPUT);
+
+  while (!Serial) {
+    ;  // wait for serial port to connect. Needed for native USB port only
+  }
+}
+
+void loop() {
+  //zera variaveis
+  x = 0;
+  p = 0;
+  na = 0;
+  valid = 0;
+  String direcao = "o";
+
+  //zera outputs
+  digitalWrite(pulsopin, HIGH);
+  digitalWrite(direcaopin, HIGH);
+  digitalWrite(enpin, HIGH);
+
+  //string com o comando
+  Serial.println("direção e quantos pulsos: ");
+  while (!Serial.available())
+    ;  // Wait for input
+  String stringOne = Serial.readStringUntil('\n');
+
+  //referencia da string
+  String stringTwo = "_";
+
+  //verifica a posição das referencias
+  while (x != stringOne.length()) {
+    if (stringOne.substring(x, x + stringTwo.length()) == stringTwo) {
+      cadpar[p] = x;
+      p++;
+    }
+    x++;
+  }
+  x = 0;
+  p = 0;
+  //salva os parametros
+  if (stringOne.substring(x, x + direcao.length()) == "e") {
+    direcao = "esquerda";
+  } else if (stringOne.substring(x, x + direcao.length()) == "d") {
+    direcao = "direita";
+  } else {
+    x = stringOne.length();
+    Serial.println("comando invalido");
+    valid = 1;
+  }
+  String num = stringOne.substring(cadpar[p] + 1, cadpar[p + 1]);
+  val = num.toFloat();
+  pulsos = val;
+
+  x++;
+  Serial.println("");
+  na = 0;
+
+  //mostra direcao e pulsos
+  if (valid == 0) {
+    if (pulsos == 0) {
+      Serial.println(" pulsos zerados");
+      valid = 1;
+    } else {
+      Serial.println(direcao + " " + pulsos + " pulsos");
+    }
+  }
+  Serial.println("");
+
+  //define a direcao
+  if (direcao == "direita") {
+    digitalWrite(direcaopin, LOW);
+  } else {
+    digitalWrite(direcaopin, HIGH);
+  }
+
+  //executa os pulsos
+  //pulsos=pulsos*2;
+  while (valid == 0) {
+    if (alterna.repeat()) {
+      //  Serial.println(pulsos);
+      digitalWrite(pulsopin, !digitalRead(pulsopin));
+      digitalWrite(pulsopin, !digitalRead(pulsopin));
+      pulsos--;
+    }
+    if (pulsos == 0) {
+      valid = 1;
+    }
+    //cancela a ação
+    if (Serial.available()) {
+      cancela = Serial.readStringUntil('\n');
+    }
+    if (cancela == "cancela") {
+      cancela = " ";
+      valid = 1;
+    }
+  }
+  Serial.println("");
+}
