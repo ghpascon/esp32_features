@@ -1,0 +1,105 @@
+#include<neotimer.h>
+
+
+Neotimer tempo;
+
+
+int c=0;
+float f=0;
+double g=0;
+
+
+void soma(int a, int b)
+  {
+    c=a+b;
+    Serial.println(c);
+    c=0;
+  }
+
+
+void subtracao(int a, int b)
+  {
+    c=a-b;
+    Serial.println(c);
+    c=0;
+  }
+
+
+void multiplicacao(float d, float e)
+  {
+    f=d*e;
+    Serial.println(f);
+    f=0;
+  }
+
+
+void divisao(float d, float e)
+  {
+    f=d/e;
+    Serial.println(f);
+    f=0;
+  }
+
+
+void minimo(int a, int b)
+  {
+    c=min(a, b);
+    Serial.println(c);
+    c=0;
+  }
+
+
+void maximo(int a, int b)
+  {
+    c=max(a, b);
+    Serial.println(c);
+    c=0;
+  }
+
+
+void potencia(float d, float e)
+  {
+    g=pow(d, e);
+    Serial.println(g);
+    g=0;
+  }
+
+
+void raiz(float d, float e)
+  {
+    g=pow(d, 1/e);
+    Serial.println(g);
+    g=0;
+  }
+
+
+void setup() 
+  {
+    Serial.begin(115200);
+
+
+    tempo.set(10000);
+  }
+
+void loop() 
+  {
+  if(tempo.repeat())
+    {
+      Serial.println("soma 1+1: ");
+      soma(1, 1);
+      Serial.println("subtracao 5-2: ");
+      subtracao(5, 2);
+      Serial.println("multiplicacao 2*4: ");
+      multiplicacao(2, 4);
+      Serial.println("divisao 8/3: ");
+      divisao(8,3);
+      Serial.println("minimo entre 5 e 3: ");
+      minimo(5,3);
+      Serial.println("maximo entre 5 e 3: ");
+      maximo(5,3);
+      Serial.println("2 elevado a 3: ");
+      potencia(2,3);
+      Serial.println("raiz 3 de 27: ");
+      raiz(27,3);
+    }
+  }
