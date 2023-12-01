@@ -1,0 +1,37 @@
+#include<neotimer.h>
+
+
+Neotimer blink1;
+Neotimer blink2;
+Neotimer blink3;
+
+
+void setup()
+{
+Serial.begin(115200);
+
+
+blink1.set(1000);
+blink2.set(3000);
+blink3.set(10000);
+}
+
+void loop() 
+{
+if(blink1.repeat())
+{
+  Serial.println("1");
+}
+
+
+if(blink2.repeat())
+{
+  Serial.println("2");
+}
+
+
+if(blink3.repeat())
+{
+  Serial.println("3");
+}
+}
