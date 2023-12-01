@@ -1,0 +1,119 @@
+//definir variaveis
+int x1=0;
+int z1=0;
+int n1=0;
+int l1=0;
+int l2=0;
+int card[26]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int decimal=0;
+void setup() 
+{
+// iniciar comunicacao serial  
+  Serial.begin(115200);
+  //definir os pinos de leitura
+  pinMode(25, INPUT);
+  pinMode(26, INPUT); 
+}
+void loop() {
+//leitora 1  
+  if(digitalRead(25) == 1)
+  {
+    x1 = 0;
+  }       
+if(digitalRead(25) == 0 && x1 == 0)         
+{
+n1=n1+1;
+x1 = 1;
+    Serial.print("0");
+}     
+ if(digitalRead(26) == 1)
+  {
+    z1=0;
+  }       
+if(digitalRead(26) == 0 && z1 == 0)         
+{
+      Serial.print("1");
+card[n1]=1;
+n1=n1+1;
+z1 = 1;
+}     
+
+//limpa sujeira no numero do cartao n1
+if (n1!=l1)
+{
+ l1=n1;
+ l2=0;
+}
+if (n1==l1)
+{
+  l2=l2+1;
+}
+if (l2==5000)
+{
+  l1=0;
+  l2=0;
+  n1=0;
+}
+
+
+//decodificacao leitora 1 26 bits
+if(n1==26)
+{
+if (card[24] == 1)
+{
+  decimal=decimal+1;
+}if (card[23] == 1)
+{
+  decimal=decimal+2;
+}if (card[22] == 1)
+{
+  decimal=decimal+4;
+}if (card[21] == 1)
+{
+  decimal=decimal+8;
+}if (card[20] == 1)
+{
+  decimal=decimal+16;
+}if (card[19] == 1)
+{
+  decimal=decimal+32;
+}if (card[18] == 1)
+{
+  decimal=decimal+64;
+}if (card[17] == 1)
+{
+  decimal=decimal+128;
+}if (card[16] == 1)
+{
+  decimal=decimal+256;
+}if (card[15] == 1)
+{
+  decimal=decimal+512;
+}if (card[14] == 1)
+{
+  decimal=decimal+1024;
+}if (card[13] == 1)
+{
+  decimal=decimal+2048;
+}if (card[12] == 1)
+{
+  decimal=decimal+4096;
+}if (card[11] == 1)
+{
+  decimal=decimal+8192;
+}if (card[10] == 1)
+{
+  decimal=decimal+16384;
+}if (card[9] == 1)
+{
+  decimal=decimal+32768;
+}
+    Serial.println(decimal);
+for(n1=0; n1<=25; n1=n1+1)
+  {
+card[n1]=0;
+  }
+  n1=0;
+  decimal=0;
+}
+}
