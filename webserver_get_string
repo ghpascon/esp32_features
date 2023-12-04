@@ -1,0 +1,87 @@
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+
+const char* ssid = "Smartx Tags";
+const char* password = "smartx4321$";
+
+String StringOne = "";
+String StringTwo = "";
+
+WebServer server(80);
+
+
+
+//login page, also called for disconnect
+void handleLogin() {
+  String msg;
+  if (server.hasHeader("Cookie")) {
+    Serial.print("Found cookie: ");
+    String cookie = server.header("Cookie");
+    Serial.println(cookie);
+  }
+  if (server.hasArg("DISCONNECT")) {
+    Serial.println("Disconnection");
+    server.sendHeader("Location", "/login");
+    server.sendHeader("Cache-Control", "no-cache");
+    server.sendHeader("Set-Cookie", "ESPSESSIONID=0");
+    server.send(301);
+    return;
+  }
+
+  /*salva os comandos*/
+  if (server.hasArg("stringone") && server.hasArg("stringtwo")) {
+    StringOne = server.arg("stringone");
+    StringTwo = server.arg("stringtwo");
+    Serial.print(StringOne);
+    Serial.print(" ");
+    Serial.print(StringTwo);
+    Serial.println(" ");
+    msg = "comando enviado";
+  }
+
+  /*html do site*/
+  String content = "<html><body><form action='/login' method='POST'>Escreva o comando:<br>";
+  content += "string 1:<input type='text' name='stringone' placeholder='stringone'><br>";
+  content += "string 2:<input type='text' name='stringtwo' placeholder='stringtwo'><br>";
+  // se colocar nesse modo fica ...... como senha
+  //content += "string 2:<input type='password' name='stringtwo' placeholder='stringtwo'><br>";
+  content += "<input type='submit' name='SUBMIT' value='enviar'></form>" + msg + "<br>";
+  server.send(200, "text/html", content);
+}
+
+void setup(void) {
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+
+  server.on("/login", handleLogin);
+  server.on("/inline", []() {
+  });
+
+  //here the list of headers to be recorded
+  const char* headerkeys[] = { "User-Agent", "Cookie" };
+  size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
+  //ask server to track these headers
+  server.collectHeaders(headerkeys, headerkeyssize);
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void loop(void) {
+  server.handleClient();
+  delay(2);  //allow the cpu to switch to other tasks
+}
