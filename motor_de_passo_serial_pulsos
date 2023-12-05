@@ -2,11 +2,8 @@
 //seguir o modelo: e_x_ ou d_x_
 
 //ao usar motor de passo nao utilizar serialprint entre os pulsos
-//ao usar motor de passo utilizar tempo entre os pulsos de pelo menos 1ms
+//ao usar motor de passo utilizar tempo entre mudança de direcao de pelo menos 50ms
 
-
-//bibliotecas
-#include <neotimer.h>
 
 //variaveis
 int valid = 0;
@@ -16,23 +13,20 @@ int p = 0;
 int x = 0;
 int cadpar[2] = {};
 int pulsos = 0;
+int mstp=0;
 
 
-int t1 = 1;  //tempo entre alternar o gpo
 int pulsopin = 13;
 int direcaopin = 14;
 int enpin = 22;
 
 String cancela = " ";
 
-//temporizadores
-Neotimer alterna;
 
 
 void setup() {
   Serial.begin(115200);
 
-  alterna.set(t1);
   pinMode(pulsopin, OUTPUT);
   pinMode(direcaopin, OUTPUT);
   pinMode(enpin, OUTPUT);
@@ -112,13 +106,18 @@ void loop() {
 
   //executa os pulsos
   //pulsos=pulsos*2;
+  delay(50);
   while (valid == 0) {
-    if (alterna.repeat()) {
-      //  Serial.println(pulsos);
+    mstp = 0;
+    // 800 pulsos por revolução
+    while (mstp < 4) {
+      delayMicroseconds(100);
       digitalWrite(pulsopin, !digitalRead(pulsopin));
+      delayMicroseconds(100);
       digitalWrite(pulsopin, !digitalRead(pulsopin));
-      pulsos--;
+      mstp++;
     }
+    pulsos--;
     if (pulsos == 0) {
       valid = 1;
     }
@@ -131,5 +130,6 @@ void loop() {
       valid = 1;
     }
   }
+    delay(50);
   Serial.println("");
 }
