@@ -14,6 +14,7 @@ int cadpar[2] = {};
 int pulsos = 0;
 float erro = 0;
 int mm = 0;
+int mstp=0;
 
 //colocar quantos mm anda por cada grau que o motor gira (levar em conta caixa de reducao)
 //Ex: se a caixa de reducao for 10:1 e o movimentar 0.5mm a cada 1° da caixa de reducao, vai movimentar 0.05 por ° do motor, mm_grau=0.05
@@ -120,12 +121,16 @@ void loop() {
 
   //executa os pulsos
   while (valid == 0) {
-    if (alterna.repeat()) {
-      Serial.println(pulsos);
+     mstp = 0;
+    // 800 pulsos por revolução
+    while (mstp < 4) {
+      delayMicroseconds(100);
       digitalWrite(pulsopin, !digitalRead(pulsopin));
+      delayMicroseconds(100);
       digitalWrite(pulsopin, !digitalRead(pulsopin));
-      pulsos--;
+      mstp++;
     }
+      pulsos--;
     if (pulsos == 0) {
       valid = 1;
     }
