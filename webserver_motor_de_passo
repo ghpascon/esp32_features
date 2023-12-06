@@ -1,0 +1,151 @@
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+
+int valid = 0;
+int na = 0;
+int p = 0;
+int x = 0;
+int cadpar[2] = {};
+int pulsos = 0;
+int mstp = 0;
+
+int pulsopin = 13;
+int direcaopin = 14;
+int enpin = 22;
+
+String cancela = " ";
+
+const char* ssid = "Smartx Tags";
+const char* password = "smartx4321$";
+
+String StringOne = "";
+String StringTwo = "";
+
+WebServer server(80);
+
+
+
+//login page, also called for disconnect
+void handleLogin() {
+  String msg;
+  if (server.hasHeader("Cookie")) {
+    Serial.print("Found cookie: ");
+    String cookie = server.header("Cookie");
+    Serial.println(cookie);
+  }
+  if (server.hasArg("DISCONNECT")) {
+    Serial.println("Disconnection");
+    server.sendHeader("Location", "/login");
+    server.sendHeader("Cache-Control", "no-cache");
+    server.sendHeader("Set-Cookie", "ESPSESSIONID=0");
+    server.send(301);
+    return;
+  }
+
+  /*salva os comandos*/
+  if (server.hasArg("stringone") && server.hasArg("stringtwo")) {
+    StringOne = server.arg("stringone");
+    StringTwo = server.arg("stringtwo");
+    Serial.print(StringOne);
+    Serial.print(" ");
+    Serial.print(StringTwo);
+    Serial.println(" ");
+    msg = "comando enviado";
+    //zera variaveis
+    x = 0;
+    p = 0;
+    na = 0;
+    valid = 0;
+    String direcao = "o";
+
+    //zera outputs
+    digitalWrite(pulsopin, HIGH);
+    digitalWrite(direcaopin, HIGH);
+    digitalWrite(enpin, HIGH);
+    if (StringOne == "esquerda") {
+      digitalWrite(direcaopin, HIGH);
+    } else if (StringOne == "direita") {
+      digitalWrite(direcaopin, LOW);
+    } else {
+      Serial.println("comando invalido");
+      valid = 1;
+    }
+    pulsos = StringTwo.toInt();
+    delay(50);
+    while (valid == 0) {
+      mstp = 0;
+      // 800 pulsos por revolução
+      while (mstp < 4) {
+        delayMicroseconds(100);
+        digitalWrite(pulsopin, !digitalRead(pulsopin));
+        delayMicroseconds(100);
+        digitalWrite(pulsopin, !digitalRead(pulsopin));
+        mstp++;
+      }
+      pulsos--;
+      if (pulsos == 0) {
+        valid = 1;
+      }
+      //cancela a ação
+      if (Serial.available()) {
+        cancela = Serial.readStringUntil('\n');
+      }
+      if (cancela == "cancela") {
+        cancela = " ";
+        valid = 1;
+      }
+    }
+    delay(50);
+  }
+  StringOne = "";
+    StringTwo = "";
+
+  /*html do site*/
+  String content = "<html><body><form action='/login' method='POST'>Escreva o comando:<br>";
+  content += "direcao:<input type='text' name='stringone' placeholder='stringone'><br>";
+  content += "pulsos:<input type='text' name='stringtwo' placeholder='stringtwo'><br>";
+  // se colocar nesse modo fica ...... como senha
+  //content += "string 2:<input type='password' name='stringtwo' placeholder='stringtwo'><br>";
+  content += "<input type='submit' name='SUBMIT' value='enviar'></form>" + msg + "<br>";
+  server.send(200, "text/html", content);
+}
+
+void setup(void) {
+  Serial.begin(115200);
+  pinMode(pulsopin, OUTPUT);
+  pinMode(direcaopin, OUTPUT);
+  pinMode(enpin, OUTPUT);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+
+  server.on("/login", handleLogin);
+  server.on("/inline", []() {
+  });
+
+  //here the list of headers to be recorded
+  const char* headerkeys[] = { "User-Agent", "Cookie" };
+  size_t headerkeyssize = sizeof(headerkeys) / sizeof(char*);
+  //ask server to track these headers
+  server.collectHeaders(headerkeys, headerkeyssize);
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void loop(void) {
+  server.handleClient();
+  delay(2);  //allow the cpu to switch to other tasks
+}
