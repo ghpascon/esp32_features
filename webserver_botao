@@ -1,0 +1,136 @@
+#include <WiFi.h>
+
+const char* ssid = "Smartx Tags";
+const char* password = "smartx4321$";
+
+WiFiServer server(80);
+
+String header;
+
+// strings necessarias se o botao for alterar o status ex: on/off
+String bts1 = "off";
+String bts2 = "off";
+
+// define timeout
+unsigned long currentTime = millis();
+unsigned long previousTime = 0;
+const long timeoutTime = 2000;
+
+void setup() {
+  Serial.begin(115200);
+
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+}
+
+void loop() {
+  WiFiClient client = server.available();  // Listen for incoming clients
+
+  // verifica conexao do cliente
+  if (client) {
+    currentTime = millis();
+    previousTime = currentTime;
+    Serial.println("New Client.");
+    String currentLine = "";
+    while (client.connected() && currentTime - previousTime <= timeoutTime) {
+      currentTime = millis();
+      if (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+        header += c;
+        if (c == '\n') {
+          if (currentLine.length() == 0) {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+
+
+
+
+            // define as ações quando acionar os botões
+            if (header.indexOf("GET /bt1/on") >= 0) {
+              Serial.println("Botao 1 acionado");
+              bts1 = "on";
+            } else if (header.indexOf("GET /bt1/off") >= 0) {
+              Serial.println("Botao 1 desacionado");
+              bts1 = "off";
+            } else if (header.indexOf("GET /bt2/on") >= 0) {
+              Serial.println("Botao 2 acionado");
+              bts2 = "on";
+            } else if (header.indexOf("GET /bt2/off") >= 0) {
+              Serial.println("botao 2 desacionado");
+              bts2 = "off";
+            } else if (header.indexOf("GET /bt3/test") >= 0) {
+              Serial.println("Bt3 teste ok");
+            }
+
+
+
+            // criar e estilizar
+            // escrita
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
+            // botoes
+            client.println(".button { background-color: #4CAF50; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 10px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 { background-color: #ff3200; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 10px; margin: 2px; cursor: pointer;}");
+            client.println(".button3 { background-color: #5703ff; border: none; color: white; padding: 16px 40px;");
+            client.println("text-decoration: none; font-size: 10px; margin: 2px; cursor: pointer;}");
+            client.println("</style></head>");
+
+
+            // pagina web
+            client.println("<body><h1>ESP32 Web Server</h1>"); //Cabecalho
+
+            client.println("<p>Botao 1 " + bts1 + "</p>"); //botao 1
+            if (bts1 == "off") {
+              client.println("<p><a href=\"/bt1/on\"><button class=\"button\">ON</button></a></p>"); //estilo de botao 1
+            } else {
+              client.println("<p><a href=\"/bt1/off\"><button class=\"button button2\">OFF</button></a></p>"); //estilo de botao 2
+            }
+
+            client.println("<p>Botao 2 " + bts2 + "</p>");//botao 2
+            if (bts2 == "off") {
+              client.println("<p><a href=\"/bt2/on\"><button class=\"button\">ON</button></a></p>"); //estilo de botao 1
+            } else {
+              client.println("<p><a href=\"/bt2/off\"><button class=\"button button2\">OFF</button></a></p>");//estilo de botao 2
+            }
+
+            client.println("<p>Botao 3 teste<p>");//botao 3
+            client.println("<p><a href=\"/bt3/test\"><button class=\"button button3\">test button</button></a></p>");//estilo de botao 3
+
+            client.println("</body></html>");
+
+            client.println();
+            // Break out of the while loop
+            break;
+          } else {  // if you got a newline, then clear currentLine
+            currentLine = "";
+          }
+        } else if (c != '\r') {  // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+      }
+    }
+    // Clear the header variable
+    header = "";
+    // Close the connection
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
+}
