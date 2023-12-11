@@ -1,0 +1,62 @@
+int array[] = { 2, 9, 0, 45, 3, 66, 789, -56, 27, -5, 90, 2, 3, -100 };
+int i = 0;
+int j = 0;
+int aux = 0;
+
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  // zerar
+  i = 0;
+  j = 0;
+  aux = 0;
+
+  // crescente
+  while (j < (sizeof(array)) / (sizeof(array[0]))) {
+    while (i < ((sizeof(array)) / (sizeof(array[0])) - 1)) {
+      if (array[i] > array[i + 1]) {
+        aux = array[i];
+        array[i] = array[i + 1];
+        array[i + 1] = aux;
+      }
+      i++;
+    }
+    i=0;
+    j++;
+  }
+  i = 0;
+  while (i < (sizeof(array)) / (sizeof(array[0]))) {
+    Serial.println(array[i]);
+    i++;
+  }
+  Serial.println(" ");
+  delay(5000);
+
+   // zerar
+  i = 0;
+  j = 0;
+  aux = 0;
+  // decrescente
+  while (j < (sizeof(array)) / (sizeof(array[0]))) {
+    while (i < ((sizeof(array)) / (sizeof(array[0])) - 1)) {
+      if (array[i] < array[i + 1]) {
+        aux = array[i];
+        array[i] = array[i + 1];
+        array[i + 1] = aux;
+      }
+      i++;
+    }
+    i=0;
+    j++;
+  }
+  i = 0;
+  while (i < (sizeof(array)) / (sizeof(array[0]))) {
+    Serial.println(array[i]);
+    i++;
+  }
+  Serial.println(" ");
+  delay(5000);
+}
