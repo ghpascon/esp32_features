@@ -1,80 +1,102 @@
-int array[100] = {};    
-int na=0;
-int val=0;
-int aux=0;
+int array[100] = {};
+int na = 0;
+int val = 0;
+int aux = 0;
+int i = 0;
+int j = 0;
+
+void adicionar() {
+  while (na < (sizeof(array)) / (sizeof(array[0]))) {
+    if (array[na] == 0) {
+      Serial.println("Qual numero deseja adicionar? ");
+      while (!Serial.available())
+        ;  // Wait for input
+      String num = Serial.readStringUntil('\n');
+      val = num.toInt();
+      array[na] = val;
+      na = (sizeof(array)) / (sizeof(array[0]));
+    } else {
+      na++;
+    }
+  }
+}
+
+void remover() {
+  Serial.println("Qual numero deseja remover? ");
+  while (!Serial.available())
+    ;  // Wait for input
+  String num = Serial.readStringUntil('\n');
+  val = num.toInt();
+  while (na < (sizeof(array)) / (sizeof(array[0]))) {
+    if (val == array[na]) {
+      array[na] = 0;
+      na = (sizeof(array)) / (sizeof(array[0]));
+    } else {
+      na++;
+    }
+  }
+}
+
+void listar() {
+  Serial.println("Numeros cadastrados: ");
+  while (na < (sizeof(array)) / (sizeof(array[0]))) {
+    if (array[na] == 0) {
+      na = (sizeof(array)) / (sizeof(array[0]));
+    } else {
+      Serial.println(array[na]);
+    }
+    na++;
+  }
+  Serial.println("");
+}
+
+void sorterdec() {
+  // zerar
+  i = 0;
+  j = 0;
+  aux = 0;
+  // decrescente
+  while (j < (sizeof(array)) / (sizeof(array[0]))) {
+    while (i < ((sizeof(array)) / (sizeof(array[0])) - 1)) {
+      if (array[i] < array[i + 1]) {
+        aux = array[i];
+        array[i] = array[i + 1];
+        array[i + 1] = aux;
+      }
+      i++;
+    }
+    i = 0;
+    j++;
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  na = 0;
 
 
-void setup() 
-  {
-    Serial.begin(115200);
+  Serial.println("adicionar, remover ou lista: ");
+  while (!Serial.available())
+    ;  // Wait for input
+  String acao = Serial.readStringUntil('\n');
+
+
+  if (acao == "adicionar") {
+    adicionar();
+    sorterdec();
   }
 
-void loop() 
-  {
-    na=0;
 
-
-    Serial.println("adicionar, remover ou lista: ");
-    while (!Serial.available()); // Wait for input
-    String acao = Serial.readStringUntil('\n');
-
-
-    if(acao=="adicionar")
-      {
-        while(na < (sizeof(array))/(sizeof(array[0])))
-          {
-            if(array[na]==0)
-              {
-                Serial.println("Qual numero deseja adicionar? ");
-                while (!Serial.available()); // Wait for input
-                String num = Serial.readStringUntil('\n');
-                val=num.toInt();
-                array[na]=val;
-                na = (sizeof(array))/(sizeof(array[0]));
-              }
-            else
-            {
-              na++;
-            }
-          }
-      }
-
-
-    if(acao=="remover")
-      {
-        Serial.println("Qual numero deseja remover? ");
-        while (!Serial.available()); // Wait for input
-        String num = Serial.readStringUntil('\n');
-        val=num.toInt();
-        while(na < (sizeof(array))/(sizeof(array[0])))
-          {
-            if(val==array[na])
-              {
-                array[na]=0;
-                na = (sizeof(array))/(sizeof(array[0]));
-              }
-            else
-              {
-                na++;
-              }
-          }
-      }
-
-      
-    if(acao=="lista")
-      {
-      Serial.println("Numeros cadastrados: ");
-      while(na < (sizeof(array))/(sizeof(array[0])))
-       {
-          if(array[na]==0)
-            {
-            }
-          else
-            {
-              Serial.println(array[na]);
-            }
-          na++;  
-       }
-        Serial.println("");    
-      }
+  if (acao == "remover") {
+    remover();
+    sorterdec();
   }
+
+
+  if (acao == "lista") {
+    listar();
+  }
+}
